@@ -22,6 +22,11 @@ contract DevToken is Ownable, Stakeable {
      * and the balance of the address as the value
      */
     mapping(address => uint256) private _balances;
+    /**
+     * @notice _allowances is used to manage and control allownace
+     * An allowance is the right to use another accounts balance, or part of it
+     */
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     /**
      * @notice Events are created below.
@@ -29,6 +34,15 @@ contract DevToken is Ownable, Stakeable {
      *
      */
     event Transfer(address indexed from, address indexed to, uint256 value);
+    /**
+     * @notice Approval is emitted when a new Spender is approved to spend Tokens on
+     * the Owners account
+     */
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 
     /**
      * @notice constructor will be triggered when we create the Smart contract
@@ -216,22 +230,6 @@ contract DevToken is Ownable, Stakeable {
     }
 
     /**
-     * @notice _allowances is used to manage and control allownace
-     * An allowance is the right to use another accounts balance, or part of it
-     */
-    mapping(address => mapping(address => uint256)) private _allowances;
-
-    /**
-     * @notice Approval is emitted when a new Spender is approved to spend Tokens on
-     * the Owners account
-     */
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
-
-    /**
      * @notice getOwner just calls Ownables owner function.
      * returns owner of the token
      *
@@ -361,5 +359,14 @@ contract DevToken is Ownable, Stakeable {
         _stake(_amount);
         // Burn the amount of tokens on the sender
         _burn(msg.sender, _amount);
+    }
+
+    /**
+     * @notice withdrawStake is used to withdraw stakes from the account holder
+     */
+    function withdrawStake(uint256 amount, uint256 stake_index) public {
+        uint256 amount_to_mint = _withdrawStake(amount, stake_index);
+        // Return staked tokens to user
+        _mint(msg.sender, amount_to_mint);
     }
 }
